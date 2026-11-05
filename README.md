@@ -1,42 +1,62 @@
+[English](README.md) | [日本語](README.ja.md)
+
 # Exif-Renamer
 
-撮影日時で写真・動画のファイル名を付け直す macOS アプリです。
-ファイル/フォルダをドラッグ&ドロップするか、Finder の「このアプリケーションで開く」で起動すると、
-`YYYY.MM.DD_HH.MM.SS.拡張子` 形式へリネームします。
+A macOS app that renames photos and videos by their capture date.
+Drag and drop files or folders onto it, or open them with it from the Finder's "Open With",
+and it renames them to the `YYYY.MM.DD_HH.MM.SS.ext` format.
 
-> このリポジトリは**配布物（公証済み zip）の置き場**です。ソースコードは別リポジトリで管理しています。
-
-## インストール（Homebrew）
+## Installation (Homebrew)
 
 ```sh
 brew install --cask EVAtiter/tap/exif-renamer
 ```
 
-依存する `exiftool` / `php` は cask が自動で導入します。
+The cask installs the `exiftool` and `php` it depends on automatically.
 
-撮影日時メタを持たないファイルのフォールバック（macOS 作成日時の取得）には
-Xcode Command Line Tools の `GetFileInfo` を使います。未導入なら次を実行してください
-（撮影日時メタがあるファイルだけなら不要です）:
+> If Homebrew refuses to load the tap because it is not trusted,
+> run `brew trust --cask EVAtiter/tap/exif-renamer` first.
+
+For files without capture-date metadata, the fallback (reading the macOS creation date) uses `GetFileInfo` from the
+Xcode Command Line Tools. If they are not installed, run the following
+(not needed if all your files have capture-date metadata):
 
 ```sh
 xcode-select --install
 ```
 
-## 対応形式
+## Using it from the Terminal (since v1.3.0)
 
-- 静止画: JPEG / JPG / PNG / GIF / HEIC / HEIF
-- 動画: MOV / MP4 / M4V / AVI
+Installing with Homebrew also puts the `exif-renamer` command on your PATH.
+It opens no window and writes its progress straight to standard output (for scripts and pipes).
 
-## 仕組み
+```sh
+exif-renamer <file_or_directory> [...]
+```
 
-日時は次の優先順で決定します。
+It renames files exactly the same way as the app.
 
-1. 撮影日時メタ（exiftool。静止画は `DateTimeOriginal`、動画は `CreationDate` 等）
-2. macOS の作成日時（`GetFileInfo`）
-3. ファイルの更新日時
+## Supported formats
 
-2・3 にフォールバックした場合、静止画はその日時をメタへ書き戻します。
+- Images: JPEG / JPG / PNG / GIF / HEIC / HEIF / WEBP
+- Videos: MOV / MP4 / M4V / AVI
 
-## ライセンス / 著作権
+## How it works
+
+The date is chosen in this order:
+
+1. Capture-date metadata (exiftool; `DateTimeOriginal` for images, `CreationDate` and others for videos)
+2. The macOS creation date (`GetFileInfo`)
+3. The file's modification date
+
+When it falls back to 2 or 3, it writes that date back into the metadata of images.
+
+## Requirements
+
+- macOS 13 Ventura or later
+- Apple Silicon (arm64) only
+- Notarized by Apple
+
+## License / Copyright
 
 Copyright © 2026 EVA Titer. All rights reserved.
